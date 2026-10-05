@@ -12,7 +12,7 @@
       "over_abstain": 0.04285714285714286,
       "consistency": null,
       "majority_acc": null,
-      "ece": 0.51,
+      "ece": 0.5100000000000008,
       "calibration": [
         {
           "bucket": "0.9-1.0",
@@ -44,8 +44,8 @@
         }
       ]
     },
-    "results/baseline-tracer_trace.jsonl": {
-      "n": 100,
+    "results/claude-haiku-4-5-20251001_raw.jsonl": {
+      "n": 36,
       "parse_rate": 1.0,
       "verdict_acc": 1.0,
       "key_acc": 1.0,
@@ -54,14 +54,14 @@
       "false_alarm": 0.0,
       "abstain_recall": 1.0,
       "over_abstain": 0.0,
-      "consistency": null,
-      "majority_acc": null,
-      "ece": 0.0,
+      "consistency": 1.0,
+      "majority_acc": 1.0,
+      "ece": 0.04444444444444473,
       "calibration": [
         {
           "bucket": "0.9-1.0",
-          "n": 100,
-          "mean_conf": 1.0,
+          "n": 36,
+          "mean_conf": 0.956,
           "accuracy": 1.0
         }
       ]
@@ -120,7 +120,7 @@
         "cannot_determine": 1.0
       }
     },
-    "results/baseline-tracer_trace.jsonl": {
+    "results/claude-haiku-4-5-20251001_raw.jsonl": {
       "trap": {
         "misleading": 1.0,
         "none": 1.0

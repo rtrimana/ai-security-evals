@@ -20,6 +20,7 @@ the model's text, and register it in make_caller().
 """
 import argparse
 import json
+import random
 import re
 import time
 from pathlib import Path
@@ -134,6 +135,25 @@ def make_caller(args):
     raise SystemExit(f"unknown provider: {args.provider}")
 
 
+def balanced_subset(cases, n, seed=0):
+    """Class-balanced, seeded subset: round-robin across verdict classes after a
+    seeded shuffle, so a small --limit still mixes safe, unsafe and
+    cannot_determine cases (the cases file is ordered by class)."""
+    rng = random.Random(seed)
+    groups = {}
+    for case in cases:
+        groups.setdefault(case["verdict"], []).append(case)
+    for group in groups.values():
+        rng.shuffle(group)
+    picked, i = [], 0
+    while len(picked) < n and any(i < len(g) for g in groups.values()):
+        for group in groups.values():
+            if i < len(group) and len(picked) < n:
+                picked.append(group[i])
+        i += 1
+    return sorted(picked, key=lambda c: c["id"])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--provider", default="anthropic",
@@ -141,7 +161,9 @@ def main():
     ap.add_argument("--model", default="claude-haiku-4-5-20251001")
     ap.add_argument("--condition", default="raw", choices=["raw", "trace"])
     ap.add_argument("--runs", type=int, default=1, help="repeats per case (for the consistency metric)")
-    ap.add_argument("--limit", type=int, default=0, help="only the first N cases (0 = all)")
+    ap.add_argument("--limit", type=int, default=0,
+                    help="run a class-balanced, seeded subset of N cases (0 = all)")
+    ap.add_argument("--subset-seed", type=int, default=0, help="seed for the --limit subset")
     ap.add_argument("--temperature", type=float, default=None,
                     help="optional; omitted by default because some models restrict it")
     ap.add_argument("--warn-names", action="store_true",
@@ -151,7 +173,7 @@ def main():
 
     cases = [json.loads(line) for line in open("cases.jsonl")]
     if args.limit:
-        cases = cases[:args.limit]
+        cases = balanced_subset(cases, args.limit, args.subset_seed)
 
     label = args.model if args.provider == "anthropic" else args.provider
     suffix = "_warn" if args.warn_names else ""
