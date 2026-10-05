@@ -1,0 +1,150 @@
+{
+  "summaries": {
+    "results/baseline-keyword_raw.jsonl": {
+      "n": 100,
+      "parse_rate": 1.0,
+      "verdict_acc": 0.39,
+      "key_acc": 0.52,
+      "iv_acc": 0.5,
+      "missed_unsafe": 0.7,
+      "false_alarm": 0.23333333333333334,
+      "abstain_recall": 0.23333333333333334,
+      "over_abstain": 0.04285714285714286,
+      "consistency": null,
+      "majority_acc": null,
+      "ece": 0.51,
+      "calibration": [
+        {
+          "bucket": "0.9-1.0",
+          "n": 100,
+          "mean_conf": 0.9,
+          "accuracy": 0.39
+        }
+      ]
+    },
+    "results/baseline-tracer_raw.jsonl": {
+      "n": 100,
+      "parse_rate": 1.0,
+      "verdict_acc": 1.0,
+      "key_acc": 1.0,
+      "iv_acc": 1.0,
+      "missed_unsafe": 0.0,
+      "false_alarm": 0.0,
+      "abstain_recall": 1.0,
+      "over_abstain": 0.0,
+      "consistency": null,
+      "majority_acc": null,
+      "ece": 0.0,
+      "calibration": [
+        {
+          "bucket": "0.9-1.0",
+          "n": 100,
+          "mean_conf": 1.0,
+          "accuracy": 1.0
+        }
+      ]
+    },
+    "results/baseline-tracer_trace.jsonl": {
+      "n": 100,
+      "parse_rate": 1.0,
+      "verdict_acc": 1.0,
+      "key_acc": 1.0,
+      "iv_acc": 1.0,
+      "missed_unsafe": 0.0,
+      "false_alarm": 0.0,
+      "abstain_recall": 1.0,
+      "over_abstain": 0.0,
+      "consistency": null,
+      "majority_acc": null,
+      "ece": 0.0,
+      "calibration": [
+        {
+          "bucket": "0.9-1.0",
+          "n": 100,
+          "mean_conf": 1.0,
+          "accuracy": 1.0
+        }
+      ]
+    }
+  },
+  "slices": {
+    "results/baseline-keyword_raw.jsonl": {
+      "trap": {
+        "misleading": 0.0,
+        "none": 0.5131578947368421
+      },
+      "hops_max": {
+        "0": 0.3142857142857143,
+        "1": 0.3333333333333333,
+        "2": 0.53125
+      },
+      "lib": {
+        "aesgcm": 0.2857142857142857,
+        "cryptography": 0.4772727272727273,
+        "pycryptodome": 0.3333333333333333
+      },
+      "mode": {
+        "CBC": 0.4482758620689655,
+        "CTR": 0.3793103448275862,
+        "GCM": 0.35714285714285715
+      },
+      "truth_verdict": {
+        "safe": 0.7666666666666667,
+        "unsafe": 0.225,
+        "cannot_determine": 0.23333333333333334
+      }
+    },
+    "results/baseline-tracer_raw.jsonl": {
+      "trap": {
+        "misleading": 1.0,
+        "none": 1.0
+      },
+      "hops_max": {
+        "0": 1.0,
+        "1": 1.0,
+        "2": 1.0
+      },
+      "lib": {
+        "aesgcm": 1.0,
+        "cryptography": 1.0,
+        "pycryptodome": 1.0
+      },
+      "mode": {
+        "CBC": 1.0,
+        "CTR": 1.0,
+        "GCM": 1.0
+      },
+      "truth_verdict": {
+        "safe": 1.0,
+        "unsafe": 1.0,
+        "cannot_determine": 1.0
+      }
+    },
+    "results/baseline-tracer_trace.jsonl": {
+      "trap": {
+        "misleading": 1.0,
+        "none": 1.0
+      },
+      "hops_max": {
+        "0": 1.0,
+        "1": 1.0,
+        "2": 1.0
+      },
+      "lib": {
+        "aesgcm": 1.0,
+        "cryptography": 1.0,
+        "pycryptodome": 1.0
+      },
+      "mode": {
+        "CBC": 1.0,
+        "CTR": 1.0,
+        "GCM": 1.0
+      },
+      "truth_verdict": {
+        "safe": 1.0,
+        "unsafe": 1.0,
+        "cannot_determine": 1.0
+      }
+    }
+  }
+}
