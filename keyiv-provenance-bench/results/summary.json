@@ -45,24 +45,24 @@
       ]
     },
     "results/claude-haiku-4-5-20251001_raw.jsonl": {
-      "n": 36,
+      "n": 300,
       "parse_rate": 1.0,
-      "verdict_acc": 1.0,
+      "verdict_acc": 0.9966666666666667,
       "key_acc": 1.0,
-      "iv_acc": 1.0,
+      "iv_acc": 0.9866666666666667,
       "missed_unsafe": 0.0,
       "false_alarm": 0.0,
-      "abstain_recall": 1.0,
+      "abstain_recall": 0.9888888888888889,
       "over_abstain": 0.0,
-      "consistency": 1.0,
+      "consistency": 0.99,
       "majority_acc": 1.0,
-      "ece": 0.04444444444444473,
+      "ece": 0.040933333333336264,
       "calibration": [
         {
           "bucket": "0.9-1.0",
-          "n": 36,
+          "n": 300,
           "mean_conf": 0.956,
-          "accuracy": 1.0
+          "accuracy": 0.997
         }
       ]
     }
@@ -122,28 +122,28 @@
     },
     "results/claude-haiku-4-5-20251001_raw.jsonl": {
       "trap": {
-        "misleading": 1.0,
+        "misleading": 0.9861111111111112,
         "none": 1.0
       },
       "hops_max": {
         "0": 1.0,
         "1": 1.0,
-        "2": 1.0
+        "2": 0.9895833333333334
       },
       "lib": {
         "aesgcm": 1.0,
         "cryptography": 1.0,
-        "pycryptodome": 1.0
+        "pycryptodome": 0.9920634920634921
       },
       "mode": {
         "CBC": 1.0,
         "CTR": 1.0,
-        "GCM": 1.0
+        "GCM": 0.9920634920634921
       },
       "truth_verdict": {
         "safe": 1.0,
         "unsafe": 1.0,
-        "cannot_determine": 1.0
+        "cannot_determine": 0.9888888888888889
       }
     }
   }

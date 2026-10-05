@@ -2,76 +2,105 @@
 
 Last updated: 2026-10-05
 
-Status: the reference baselines are complete (n = 100). One **preliminary smoke test**
-with Claude Haiku 4.5 on a 12-case subset is included below. Full model runs are pending.
+Status: the reference baselines and a first full run with Claude Haiku 4.5 (100 cases,
+3 runs each) are complete. The `trace` and `--warn-names` comparisons have not been run.
 
-## Reference baselines (no API, n = 100)
+## Summary
 
-| Baseline | Verdict | Key | IV | Missed unsafe | False alarm | Abstain recall | Misleading cases |
-|---|---|---|---|---|---|---|---|
-| Always "unsafe" | 40% | n/a | n/a | 0% | 100% | 0% | 42% |
-| Keyword heuristic | 39% | 52% | 50% | 70% | 23% | 23% | 0% |
-| Deterministic tracer | 100% | 100% | 100% | 0% | 0% | 100% | 100% |
+Claude Haiku 4.5 nearly saturates this version of the benchmark. With the default
+prompt it scores 99-100% on every metric, including the cases with misleading names and
+comments, where a keyword heuristic scores 0%. This version cannot separate the model
+from a perfect score, so the next step is a harder v2, not more runs of v1.
 
-- The set cannot be gamed by always answering "unsafe" (40%).
-- A heuristic that reads names and comments instead of data flow scores 0% on the
-  misleading cases and misses 70% of unsafe code, which is what those cases are built
-  to catch.
-- The tracer's 100% is a consistency check between two separate code paths (the
-  generator's templates and AST analysis) written by the same author for the same
-  patterns. It is not evidence that it works on real-world code.
+## Results (100 cases)
 
-## Preliminary: Claude Haiku 4.5 smoke test
+| Run | Records | Verdict | Key | IV | Missed unsafe | False alarm | Abstain recall | Over-abstain | Consistency | Majority acc | ECE |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Keyword heuristic | 100 | 39% | 52% | 50% | 70% | 23% | 23% | 4% | n/a | n/a | 0.51 |
+| Deterministic tracer | 100 | 100% | 100% | 100% | 0% | 0% | 100% | 0% | n/a | n/a | 0.00 |
+| Claude Haiku 4.5 (`raw`) | 300 | 100% | 100% | 99% | 0% | 0% | 99% | 0% | 99% | 100% | 0.04 |
 
-This is a pipeline check on a small subset, not a benchmark result.
+Percentages are rounded. Haiku's verdict accuracy is 299 of 300 responses. Always
+answering "unsafe" scores 40% (it makes no key or IV claims, so those columns do not
+apply). The tracer's 100% is a consistency check between two separate code paths (the
+generator's templates and AST analysis) written by the same author for the same
+patterns. It is not evidence that it works on real-world code.
+
+## Setup for the Haiku run
 
 | Setting | Value |
 |---|---|
 | Model | `claude-haiku-4-5-20251001` |
 | Condition | `raw` (code only), default prompt (no instruction to ignore names or comments) |
 | Temperature | not set (provider default) |
-| Cases | 12, a class-balanced seeded subset (`--limit 12`): 4 safe, 4 cannot_determine, 4 unsafe; 5 misleading |
-| Runs per case | 3 (36 records) |
-| Case IDs | c004, c011, c018, c019, c034, c035, c040, c043, c068, c069, c072, c084 |
+| Cases and runs | 100 cases, 3 runs each (300 records) |
+| Parse rate | 100% |
+| Date | 2026-10-05 |
 | Commit | add the git commit hash here |
 
-| Verdict | Key | IV | Missed unsafe | False alarm | Abstain recall | Over-abstain | Consistency | Majority acc | ECE |
-|---|---|---|---|---|---|---|---|---|---|
-| 100% | 100% | 100% | 0% | 0% | 100% | 0% | 100% | 100% | 0.04 |
+## Haiku accuracy by slice (verdict)
 
-Verdict accuracy by slice: 100% in every slice (misleading and plain cases; 0, 1, and
-2 hops; all three libraries and modes; all three true verdicts).
+| Slice | Accuracy |
+|---|---|
+| Plain cases (76) | 100% |
+| Misleading names and comments (24) | 99% |
+| 0 hops (35) / 1 hop (33) / 2 hops (32) | 100% / 100% / 99% |
+| `cryptography` (44) / AESGCM (14) / PyCryptodome (42) | 100% / 100% / 99% |
+| CBC (29) / CTR (29) / GCM (42) | 100% / 100% / 99% |
+| True verdict: safe (30) / unsafe (40) / cannot_determine (30) | 100% / 100% / 99% |
 
-What it shows:
+## What the results show
 
-- With the default prompt, Haiku classified every key and IV correctly, including the
-  five misleading cases, where the keyword heuristic scores 0%.
-- Its answers were identical across the three runs of every case.
-- All 36 responses parsed.
+- **No dangerous errors.** Missed unsafe and false alarm are both 0%. The only wrong
+  verdict (1 of 300 responses) was on a `cannot_determine` case.
+- **Misleading names did not fool it.** Without being told to ignore names and
+  comments, Haiku scored 99% on the misleading cases. The keyword heuristic scores 0%
+  on them.
+- **Stable answers.** One case had runs that disagreed. The majority-vote verdict was
+  correct on all 100 cases.
+- **Key labels were slightly more accurate than IV labels** (100% vs. 99%).
 
-What it does not show:
+## What they do not show
 
-- **Sample size.** With 12 cases, a perfect score is consistent with a true accuracy
-  as low as roughly 74% (95% interval at the case level). The three runs of a case are
-  not independent, so 36 records is not 36 cases.
-- **Calibration.** An ECE of 0.04 only reflects that a confident model was right every
-  time. It means little until there are errors to calibrate against.
-- **Discrimination.** If models score near 100% on the full set, this version of the
-  benchmark is saturated and cannot separate models or conditions.
+- **The task is heavily scaffolded.** The prompt spells out the five source categories
+  and the verdict rules. The model is not asked to discover them, which makes the task
+  easier than an open-ended code review.
+- **Sample size.** Majority-vote accuracy of 100 of 100 cases is consistent with a true
+  case-level accuracy as low as about 96% (95% interval). The three runs of a case are
+  not independent, so 300 records is not 300 cases.
+- **Calibration cannot be assessed.** All 300 stated confidences fell in the 0.9-1.0
+  bucket, so there is no spread to compare against accuracy. The one wrong verdict was
+  also stated with confidence of at least 0.9, but a single error is an anecdote, not a
+  calibration result.
+- **Synthetic, standard-library patterns.** `os.urandom`, `secrets`, and AES library
+  calls are common in public code, so models may have seen similar patterns.
+- **One model.** Nothing here compares models.
 
-## Full runs (pending)
+## Wrong responses
 
-| Date | Model | Condition | Cases | Runs | Verdict | Missed unsafe | Abstain recall | Consistency | ECE |
-|---|---|---|---|---|---|---|---|---|---|
-| | | raw | 100 | 3 | | | | | |
-| | | trace | 100 | 3 | | | | | |
-| | | raw, `--warn-names` | 100 | 3 | | | | | |
+Not yet written up. List them with the ground truth next to each:
 
-Plan: run `raw` on all 100 cases first. If errors appear, run `trace` and
-`--warn-names` to test whether structured context helps and how much misleading names
-and comments matter. If the model is near 100%, the set is saturated and the next step
-is a harder v2 (dead code, reassignment, conditional branches, wrappers, cross-file
-keys, a CSPRNG value generated once and reused).
+```bash
+python list_errors.py results/claude-haiku-4-5-20251001_raw.jsonl --show 3
+```
+
+The summary above says the single wrong verdict was on a `cannot_determine` case. The
+write-up of which case and why belongs here once it has been read.
+
+## Not run yet
+
+- `--condition trace` and `--warn-names`. At 99-100% there is almost no headroom to
+  measure whether structured context or a warning about names helps. They become
+  informative on a harder set.
+- Other models. The model is a flag (`--model`), so a larger or smaller model is a
+  one-line change.
+
+## Next: a harder v2
+
+Dead code, reassignment, conditional branches, wrappers and re-exports, cross-file
+keys, a CSPRNG value generated once and reused across messages, and sources that look
+safe but are not (for example a seeded generator). The goal is a set where a strong
+model makes errors, so that the `trace` and `--warn-names` comparisons mean something.
 
 ## Reproduce
 
@@ -80,21 +109,11 @@ python generate_cases.py
 python trace.py --check
 python run_eval.py --provider baseline-keyword
 python run_eval.py --provider baseline-tracer
-python run_eval.py --provider anthropic --model claude-haiku-4-5-20251001 --limit 12 --runs 3
+python run_eval.py --provider anthropic --model claude-haiku-4-5-20251001 --runs 3
 python score.py results/*.jsonl --slices
 ```
 
-`--limit` takes a class-balanced subset with a fixed seed, so the 12 cases above are
-the same on every machine.
-
-## Reading the numbers
-
-- With n = 100, accuracy near 80% carries roughly +/- 8 points of sampling noise.
-  Treat smaller differences between models or conditions as noise.
-- Check **missed unsafe** (calling unsafe code safe) and **abstain recall** (saying
-  "cannot determine" when the code really is undecidable) before accuracy.
-- Consistency and majority accuracy need at least 2 runs per case.
-- Calibration buckets are small, so ECE is coarse.
-- Do not report a run made with `--limit` as a result. It is a smoke test.
+`--limit N` runs a class-balanced subset with a fixed seed. It is a smoke test, not a
+result.
 
 See the Limitations section of the README for what this benchmark does not cover.
